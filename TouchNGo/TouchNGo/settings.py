@@ -25,7 +25,9 @@ SECRET_KEY = '#&nopkd8lhf6#li6q(%ela7nov1uto#x@8$g!3w-kj!2t7+lim'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '.touchngo.io'
+]
 
 
 # Application definition
@@ -39,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'smsManager',
-    'nexmo'
+    'nexmo',
+    'teams'
 ]
 
 MIDDLEWARE_CLASSES = [

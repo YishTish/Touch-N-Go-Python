@@ -18,9 +18,10 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
+
 class getCsrf(APIView):
     def get(self, request, *args, **kwargs):
         c = {}
         c.update(csrf(request))
-        return Response(csrf(request))   
+        return Response(csrf(request))
     #return JsonResponse({"csrf": csrf(request)})

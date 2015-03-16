@@ -27,11 +27,11 @@ class SendSms(APIView):
         jsonData = JSONParser().parse(request)
         activityKey = jsonData['key']
         phone = jsonData['phone']
-        clientPath = "https://resplendent-fire-842.firebaseapp.com" \
+        clientPath = "https://touchngo.io/" \
                      "client.html#/?case="+activityKey
         from smsManager.actions import NexmoClient
         responseCode = NexmoClient.send(phone, clientPath)
-        return JsonResponse({"code":responseCode})
+        return JsonResponse({"code": responseCode})
         #return JsonResponse({'a': self.request.query_params.get('phone', 123),
         #                    'b': request.data,
         #                    'c': jsonData})

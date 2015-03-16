@@ -13,7 +13,8 @@ class NexmoClient:
             'api_secret': NexmoClient.secret,
             'from': 'Yishai',
             'to': recipient,
-            'text': "Hello, please follow this link: "+path
+            'text': "Hello, please click the link to \
+                     complete your call with us: "+path
         }
         sms = NexmoMessage(msg)
         sms.set_text_info(msg['text'])
