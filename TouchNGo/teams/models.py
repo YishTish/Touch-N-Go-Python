@@ -1,6 +1,11 @@
-from django.db import models
 from datetime import datetime
+from django.db import models
+from django.db.models.signals import post_save
+from django.conf import settings
+from django.dispatch import receiver
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 # User logs in and creates an account - logging in is done with
 #		 	an email address and a password.
@@ -59,3 +64,9 @@ class member(common_data):
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20)
     udid = models.CharField(max_length=40)
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)

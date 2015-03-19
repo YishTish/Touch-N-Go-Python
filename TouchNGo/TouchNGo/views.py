@@ -1,15 +1,15 @@
 #from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from django.core.context_processors import csrf
-from rest_framework import viewsets, status
-from rest_framework.parsers import JSONParser
+from rest_framework import viewsets
 from rest_framework.decorators import APIView
+from rest_framework.permissions import AllowAny
 from smsManager.serializers import UserSerializer, GroupSerializer
 from rest_framework.response import Response
-from django.http import Http404, JsonResponse
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
