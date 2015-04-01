@@ -3,33 +3,30 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import datetime
+from django.conf import settings
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='administrator',
+            name='Administrator',
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
-                ('created', models.DateField(default=datetime.datetime(2015, 3, 12, 17, 3, 18, 808862))),
-                ('active', models.BooleanField(default='true')),
-                ('name', models.CharField(max_length=100)),
-                ('password', models.CharField(max_length=20)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
             ],
             options={
-                'abstract': False,
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='member',
+            name='Member',
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
-                ('created', models.DateField(default=datetime.datetime(2015, 3, 12, 17, 3, 18, 808862))),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('created', models.DateField(default=datetime.datetime(2015, 3, 31, 19, 35, 6, 260552))),
                 ('active', models.BooleanField(default='true')),
                 ('name', models.CharField(max_length=100)),
                 ('phone_number', models.CharField(max_length=20)),
@@ -41,14 +38,17 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='team',
+            name='Team',
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
-                ('created', models.DateField(default=datetime.datetime(2015, 3, 12, 17, 3, 18, 808862))),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('created', models.DateField(default=datetime.datetime(2015, 3, 31, 19, 35, 6, 260552))),
                 ('active', models.BooleanField(default='true')),
-                ('team_code', models.CharField(max_length=65)),
+                ('code', models.CharField(unique=True, max_length=10, null=True)),
                 ('name', models.CharField(max_length=100)),
-                ('firebase_secret', models.CharField(max_length=64)),
+                ('firebase_path', models.CharField(unique=True, max_length=64, null=True)),
+                ('firebase_user', models.CharField(max_length=50, null=True)),
+                ('firebase_password', models.CharField(max_length=20, null=True)),
+                ('firebase_token', models.CharField(max_length=64, null=True)),
             ],
             options={
                 'abstract': False,
@@ -57,14 +57,20 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='member',
-            name='team_code',
-            field=models.ForeignKey(to='teams.team'),
+            name='team',
+            field=models.ForeignKey(to='teams.Team', related_name='members'),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='administrator',
             name='team',
-            field=models.ForeignKey(to='teams.team'),
+            field=models.ForeignKey(to='teams.Team', related_name='administrators'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='administrator',
+            name='user',
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
             preserve_default=True,
         ),
     ]

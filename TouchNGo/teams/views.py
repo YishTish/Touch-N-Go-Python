@@ -1,13 +1,13 @@
 #from django.shortcuts import render
 from django.contrib.auth.models import User
-from teams.models import team, member
+from teams.models import Team, Member
 from rest_framework import viewsets
 from teams.serializers import UserSerializer, \
     TeamSerializer, TeamMemberSerializer
 
 
 class TeamViewSet(viewsets.ModelViewSet):
-    queryset = team.objects.all()
+    queryset = Team.objects.all()
     serializer_class = TeamSerializer
 
 
@@ -17,5 +17,5 @@ class TeamAdminViewSet(viewsets.ModelViewSet):
 
 
 class TeamMemberViewSet(viewsets.ModelViewSet):
-    queryset = member.objects.all()
+    queryset = Member.objects.all()
     serializer_class = TeamMemberSerializer

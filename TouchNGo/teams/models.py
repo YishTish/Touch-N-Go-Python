@@ -1,3 +1,4 @@
+import binascii, os
 from datetime import datetime
 from django.db import models
 from django.db.models.signals import post_save
@@ -48,19 +49,38 @@ class common_data(models.Model):
         abstract = True
 
 
-class team(common_data):
-    team_code = models.CharField(max_length=65)
+class TeamManager(models.Manager):
+    def create_team(self, teamData):
+        code = binascii.b2a_hex(os.urandom(3))
+        firebaseUser = str(code)+'@touchngo.io'
+        firebasPassword = str(binascii.b2a_hex(os.urandom(6)))
+        team = self.create(name=teamData['name'],
+                           code=code,
+                           firebase_user=firebaseUser,
+                           firebase_password=firebasPassword)
+        team.administrators.create(user=teamData['administrator'])
+        team.save()
+        return team
+
+
+class Team(common_data):
+    code = models.CharField(max_length=10, unique=True, null=True)
     name = models.CharField(max_length=100)
-    firebase_secret = models.CharField(max_length=64)
+    firebase_path = models.CharField(max_length=64, unique=True, null=True)
+    firebase_user = models.CharField(max_length=50, null=True)
+    firebase_password = models.CharField(max_length=20, null=True)
+    firebase_token = models.CharField(max_length=64, null=True)
+
+    objects = TeamManager()
 
 
-class team_administrators(models.Model):
-    team = models.ForeignKey(team, related_name='administrators')
+class Administrator(models.Model):
+    team = models.ForeignKey(Team, related_name='administrators')
     user = models.ForeignKey(User)
 
 
-class member(common_data):
-    team_code = models.ForeignKey(team, related_name='members')
+class Member(common_data):
+    team = models.ForeignKey(Team, related_name='members')
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20)
     udid = models.CharField(max_length=40)

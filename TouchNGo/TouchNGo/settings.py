@@ -96,6 +96,9 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES' : (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        )
 }
 
 
@@ -121,3 +124,6 @@ STATIC_URL = '/static/'
 
 NEXMO_KEY = "835ff543"
 NEXMO_SECRET = "68d3f00d"
+
+FIREBASE_ROOT = "https://resplendent-fire-842.firebaseio.com"
+FIREBASE_SECRET = "PHq8kO9MlPBTGiBrjJH5sHDHbQUq5bF4IFcXdcB5"
