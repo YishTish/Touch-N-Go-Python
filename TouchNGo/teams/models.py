@@ -51,15 +51,22 @@ class common_data(models.Model):
 
 class TeamManager(models.Manager):
     def create_team(self, teamData):
-        code = binascii.b2a_hex(os.urandom(3))
+        code = str(binascii.hexlify(os.urandom(3)))
+        #The following is a ugly hack to remove the
+        #decorators from the returned string.
+        #TODO: Find a prettier way
+        code = code[2:8]
         firebaseUser = str(code)+'@touchngo.io'
-        firebasPassword = str(binascii.b2a_hex(os.urandom(6)))
+        firebasPassword = str(binascii.hexlify(os.urandom(6)))
         team = self.create(name=teamData['name'],
                            code=code,
                            firebase_user=firebaseUser,
                            firebase_password=firebasPassword)
-        team.administrators.create(user=teamData['administrator'])
+        teamAdmin = Administrator(user=teamData['administrator'])
+        teamAdmin.save()
+        #team.administrators.create(user=teamData['administrator'])
         team.save()
+        teamAdmin.teams.add(team)
         return team
 
 
@@ -75,7 +82,8 @@ class Team(common_data):
 
 
 class Administrator(models.Model):
-    team = models.ForeignKey(Team, related_name='administrators')
+    teams = models.ManyToManyField(Team)
+    #team = models.ForeignKey(Team, related_name='administrators')
     user = models.ForeignKey(User)
 
 
@@ -84,6 +92,9 @@ class Member(common_data):
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20)
     udid = models.CharField(max_length=40)
+
+    class Meta:
+        unique_together = ("team", "phone_number")
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
