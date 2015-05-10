@@ -87,6 +87,19 @@ class Administrator(models.Model):
     user = models.ForeignKey(User)
 
 
+class MemberManager(models.Manager):
+
+    def create_member(self, memberData):
+        member = self.create(
+            team=memberData['team'],
+            name=memberData['name'],
+            phone_number=memberData['phone_number'],
+            udid=memberData['udid'],
+            active=False
+        )
+        member.save()
+        return member
+
 class Member(common_data):
     team = models.ForeignKey(Team, related_name='members')
     name = models.CharField(max_length=100)

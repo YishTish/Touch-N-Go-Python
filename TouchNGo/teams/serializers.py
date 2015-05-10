@@ -39,12 +39,15 @@ class TeamMemberSerializer(serializers.HyperlinkedModelSerializer):
         return {
             'team': obj.team,
             'name': obj.name,
-            'phone_number': obj.phone_number
+            'phone_number': obj.phone_number,
+            'active': obj.active
         }
 
     def create(self, validated_data):
+        req = self.context['request']
+        team = req.team
         #t = Team.objects.get(validated_data['team'])
-        member = Member(#team=t,
+        member = Member(team=team,
                         name=validated_data['name'],
                         phone_number=validated_data['phone_number'])
         member.save()

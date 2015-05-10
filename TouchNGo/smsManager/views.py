@@ -7,6 +7,7 @@ from smsManager.serializers import UserSerializer, GroupSerializer
 from rest_framework.response import Response
 from django.http import Http404, JsonResponse
 
+from smsManager.actions import NexmoClient
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -29,7 +30,7 @@ class SendSms(APIView):
         phone = jsonData['phone']
         clientPath = "https://touchngo.io/" \
                      "client.html#/?case="+activityKey
-        from smsManager.actions import NexmoClient
+
         responseCode = NexmoClient.send(phone, clientPath)
         return JsonResponse({"code": responseCode})
         #return JsonResponse({'a': self.request.query_params.get('phone', 123),

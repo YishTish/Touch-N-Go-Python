@@ -171,9 +171,15 @@ class functionalTests(TestCase):
         self.client.credentials(
             HTTP_AUTHORIZATION=' JWT '+token
         )
+
         targetUrl = self.url+'/teams/'+str(team.id)+'/'
         response = self.client.patch(targetUrl, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # targetUrl = self.url+'/teams/'+str(team.id)+'/members/'
+        # response = self.client.post(targetUrl, data, format='json')
+        # print(response.data)
+        # self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def testFreezeTeamMember(self):
         self._createUser()
@@ -189,17 +195,44 @@ class functionalTests(TestCase):
         self.client.patch(putUrl, data, format='json')
 
         disableUrl = self.url+'/teams/'+str(team.id)+'/disableUser/'
-        response = self.client.post(disableUrl, {"phone_number": "123456789"}, format='json')
+        response = self.client.post(disableUrl,
+                                    {"phone_number": "123456789"},
+                                    format='json')
 
-        print(response.status_code)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def testEnableTeamMember(self):
+        self._createUser()
+        token = self._login()
+        team = self._createAndGetTeam("Enable member")
+        member = {"name": "Bob", "phone_number": "123456789"}
+
+        data = {"members": [member]}
+        self.client.credentials(HTTP_AUTHORIZATION=' JWT '+token)
+        putUrl = self.url+'/teams/'+str(team.id)+'/'
+        self.client.patch(putUrl, data, format='json')
+
+        enableUrl = self.url+'/teams/'+str(team.id)+'/enableUser/'
+        response = self.client.post(enableUrl,
+                                    {"phone_number": "123456789"},
+                                    format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def testInitializeMemberDevice(self):
+        pass
+
+    def testRegisterMemberDevice(self):
+        pass
+
+    def testTeamMemberGetFirebaseToken(self):
+        pass
 
     #def testGetTeamMemebers(self):
 
     #def testAddTeamAdministrator(self):
 
     #def testRemoveTeamAdministrator(self):
-
-    #def testTeamMemberGetFirebaseToken(self):
 
      # def testGetTeamUsersByTeam(self):
     #     self.assertTrue(None)
