@@ -49,7 +49,8 @@ class TeamMemberSerializer(serializers.HyperlinkedModelSerializer):
         #t = Team.objects.get(validated_data['team'])
         member = Member(team=team,
                         name=validated_data['name'],
-                        phone_number=validated_data['phone_number'])
+                        phone_number=validated_data['phone_number'],
+                        active=False)
         member.save()
         return member
 
@@ -71,7 +72,10 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
 
         members = validated_data.pop('members')
         for member_data in members:
-            Member.objects.create(Team=team, **member_data)
+            member = Member.objects.create(Team=team,
+                                           active=False, **member_data
+                                           )
+            member.save()
 
         fbService = FirebaseService()
         fbService.addTeam(team)
@@ -102,6 +106,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         members = validated_data.get('members')
         for member_data in members:
             member = Member.objects.create(team=instance, **member_data)
+            member.active = False
             member.save()
 
         return instance

@@ -33,4 +33,8 @@ urlpatterns = [
 #    url(r'getCsrf', views.getCsrf.as_view(), name="getCsrf"),
     url(r'^admin/', include(admin.site.urls)),
     url(r'register/', tng_views.create_auth, name="register"),
+    url(r'initializeDevice/',
+        tng_views.initializeDevice,
+        name="initializeDevice"
+        ),
 ]

@@ -1,23 +1,12 @@
 #from django.shortcuts import render
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets, status
+
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import APIView
-from smsManager.serializers import UserSerializer, GroupSerializer
+
 from rest_framework.response import Response
 from django.http import Http404, JsonResponse
 
 from smsManager.actions import NexmoClient
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class GroupViewSet(viewsets.ModelViewSet):
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-
 
 class SendSms(APIView):
 

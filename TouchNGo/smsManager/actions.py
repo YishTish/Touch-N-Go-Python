@@ -20,3 +20,17 @@ class NexmoClient:
         sms.set_text_info(msg['text'])
         response = sms.send_request()
         return response
+
+    def sendMessage(recipient, message):
+        msg = {
+            'reqtype': 'json',
+            'api_key': NexmoClient.api_key,
+            'api_secret': NexmoClient.secret,
+            'from': 'Yishai',
+            'to': recipient,
+            'text': message
+        }
+        sms = NexmoMessage(msg)
+        sms.set_text_info(msg['text'])
+        response = sms.send_request()
+        return response

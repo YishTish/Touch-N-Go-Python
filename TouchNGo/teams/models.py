@@ -97,8 +97,11 @@ class MemberManager(models.Manager):
             udid=memberData['udid'],
             active=False
         )
-        member.save()
         return member
+        member.save()
+
+    def create(self, memberData):
+        print("create")
 
 class Member(common_data):
     team = models.ForeignKey(Team, related_name='members')
@@ -108,6 +111,8 @@ class Member(common_data):
 
     class Meta:
         unique_together = ("team", "phone_number")
+
+    #objects = MemberManager()
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

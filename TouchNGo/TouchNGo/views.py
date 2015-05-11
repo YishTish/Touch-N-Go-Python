@@ -5,8 +5,9 @@ from django.core.context_processors import csrf
 from rest_framework import viewsets, status
 from rest_framework.decorators import APIView, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from teams.serializers import UserSerializer#, GroupSerializer
+from teams.serializers import UserSerializer
 from rest_framework.response import Response
+from teams.models import Team
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -42,3 +43,18 @@ def create_auth(request):
         return Response(serialized.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['post'])
+@permission_classes((AllowAny, ))
+def initializeDevice(request):
+    teamCode = request.DATA['team']
+    querySet = Team.objects.filter(code=teamCode)
+    if(querySet.count() != 1):
+        data = {"message": "A team with code \""+teamCode+"\" does not exist"}
+    else:
+        team = querySet[0]
+        messageContent = str("Verification code for team %s \
+                             (%s) is %s", team.name, team.code, "12345")
+       data = "Team member now active"
+    return Response(data=data, status=status.HTTP_200_OK)

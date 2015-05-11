@@ -181,7 +181,7 @@ class functionalTests(TestCase):
         # print(response.data)
         # self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def testFreezeTeamMember(self):
+    def testRemoveTeamMember(self):
         self._createUser()
         token = self._login()
         team = self._createAndGetTeam("Freeze member")
@@ -194,12 +194,14 @@ class functionalTests(TestCase):
         putUrl = self.url+'/teams/'+str(team.id)+'/'
         self.client.patch(putUrl, data, format='json')
 
-        disableUrl = self.url+'/teams/'+str(team.id)+'/disableUser/'
+        disableUrl = self.url+'/teams/'+str(team.id)+'/removeMember/'
         response = self.client.post(disableUrl,
                                     {"phone_number": "123456789"},
                                     format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        memberList = Member.objects.filter(phone_number="123456789")
+        self.assertEqual(memberList.count(), 0)
 
     def testEnableTeamMember(self):
         self._createUser()
@@ -218,9 +220,37 @@ class functionalTests(TestCase):
                                     format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        memberList = Member.objects.filter(phone_number="123456789")
+        member = memberList[0]
+        self.assertTrue(member.active)
 
     def testInitializeMemberDevice(self):
-        pass
+        self._createUser()
+        token = self._login()
+        team = self._createAndGetTeam("Initialize member device")
+        member = {"name": "Bob", "phone_number": "123456789"}
+        data = {"members": [member]}
+        self.client.credentials(HTTP_AUTHORIZATION=' JWT '+token)
+        putUrl = self.url+'/teams/'+str(team.id)+'/'
+        self.client.patch(putUrl, data, format='json')
+        self.client.logout()
+
+        querySet = Member.objects.filter(team=team, phone_number="123456789")
+        inactiveMember = querySet[0]
+        self.assertFalse(inactiveMember.active)
+
+        deviceData = {"team": team.code, "phone_number": "123456789"}
+        response = self.client.post(
+            self.url+"/initializeDevice/",
+            deviceData, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response.render()
+        self.assertEqual(response.data, "Code sent by sms")
+
+
+
+
 
     def testRegisterMemberDevice(self):
         pass

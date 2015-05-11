@@ -2,7 +2,9 @@
 from django.contrib.auth.models import User
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, permission_classes
+from rest_framework.permissions import AllowAny
+
 from rest_framework.response import Response
 
 from teams.models import Team, Member, Administrator
@@ -51,6 +53,24 @@ class TeamViewSet(viewsets.ModelViewSet):
         team = self.get_object()
         return self._changeUserStatus(team, request, True)
 
+    @detail_route(methods=['post'])
+    def removeMember(self, request, pk=None):
+        team = self.get_object()
+        memberList = Member.objects.filter(
+            team=team,
+            phone_number=request.data['phone_number']
+        )
+        if(memberList.count() == 1):
+            memberList[0].delete()
+            code = status.HTTP_200_OK
+            data = {'message': 'Member was removed successfully'}
+        else:
+            code = status.HTTP_400_BAD_REQUEST
+            data = {'message': 'No member was found with this phone number, \
+                     or multiple members share the same phone number'
+                    }
+
+        return Response(data=data, status=code)
 
 
 class TeamAdminViewSet(viewsets.ModelViewSet):
