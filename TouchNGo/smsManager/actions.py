@@ -1,16 +1,15 @@
 #from nexmomessage import NexmoMessage
+from django.conf import settings
 from nexmo.libpynexmo.nexmomessage import NexmoMessage
 
 
 class NexmoClient:
-    api_key = '835ff543'
-    secret = '68d3f00d'
 
     def send(recipient, path):
         msg = {
             'reqtype': 'json',
-            'api_key': NexmoClient.api_key,
-            'api_secret': NexmoClient.secret,
+            'api_key': settings.NEXMO_KEY,
+            'api_secret': settings.NEXMO_SECRET,
             'from': 'Yishai',
             'to': recipient,
             'text': "Hello, please click the link to \
@@ -24,9 +23,9 @@ class NexmoClient:
     def sendMessage(recipient, message):
         msg = {
             'reqtype': 'json',
-            'api_key': NexmoClient.api_key,
-            'api_secret': NexmoClient.secret,
-            'from': 'Yishai',
+            'api_key': settings.NEXMO_KEY,
+            'api_secret': settings.NEXMO_SECRET,
+            'from': 'Touch-N-Go',
             'to': recipient,
             'text': message
         }

@@ -1,3 +1,4 @@
+import random
 #from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.core.context_processors import csrf
@@ -5,9 +6,11 @@ from django.core.context_processors import csrf
 from rest_framework import viewsets, status
 from rest_framework.decorators import APIView, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from teams.serializers import UserSerializer
 from rest_framework.response import Response
+
+from teams.serializers import UserSerializer
 from teams.models import Team
+from smsManager.actions import NexmoClient as smsActions
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -52,9 +55,19 @@ def initializeDevice(request):
     querySet = Team.objects.filter(code=teamCode)
     if(querySet.count() != 1):
         data = {"message": "A team with code \""+teamCode+"\" does not exist"}
+        responseStatus = status.HTTP_400_BAD_REQUEST
     else:
+        rand = int(random.random()*10000)
+        recipient = "972549792080"
         team = querySet[0]
-        messageContent = str("Verification code for team %s \
-                             (%s) is %s", team.name, team.code, "12345")
-       data = "Team member now active"
-    return Response(data=data, status=status.HTTP_200_OK)
+        messageContent = "Verification code for team \"%s\" \
+                             (%s) is %s" % (team.name, team.code, rand)
+        smsResponse = smsActions.sendMessage(recipient, messageContent)
+        if(smsResponse == 200):
+            data = "Team member now active"
+            responseStatus = status.HTTP_200_OK
+        else:
+            data = "Failure in sending verification code to %s. code: %s"  \
+                   % (recipient, smsResponse)
+            responseStatus = status.HTTP_502_BAD_GATEWAY
+    return Response(data=data, status=responseStatus)
