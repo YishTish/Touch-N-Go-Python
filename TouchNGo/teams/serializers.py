@@ -105,7 +105,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
 
         members = validated_data.get('members')
         for member_data in members:
-            member = Member.objects.create(team=instance, **member_data)
+            member = Member.objects.create_member(team=instance, **member_data)
             member.active = False
             member.save()
 

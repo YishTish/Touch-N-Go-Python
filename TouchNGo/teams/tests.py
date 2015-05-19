@@ -228,32 +228,63 @@ class functionalTests(TestCase):
         self._createUser()
         token = self._login()
         team = self._createAndGetTeam("Initialize member device")
-        member = {"name": "Bob", "phone_number": "123456789"}
+        member = {"name": "Yishai", "phone_number": "972549792080"}
         data = {"members": [member]}
         self.client.credentials(HTTP_AUTHORIZATION=' JWT '+token)
         putUrl = self.url+'/teams/'+str(team.id)+'/'
+
         self.client.patch(putUrl, data, format='json')
         self.client.logout()
 
-        querySet = Member.objects.filter(team=team, phone_number="123456789")
+        querySet = Member.objects.filter(team=team,
+                                         phone_number=member['phone_number'])
         inactiveMember = querySet[0]
         self.assertFalse(inactiveMember.active)
 
-        deviceData = {"team": team.code, "phone_number": "123456789"}
+        deviceData = {"team": team.code, "phone_number": member['phone_number']}
         response = self.client.post(
             self.url+"/initializeDevice/",
             deviceData, format='json'
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
         response.render()
-        self.assertEqual(response.data, "Code sent by sms")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+       # self.assertEqual(response.data, "Code sent by sms")
 
+        wrongDeviceData = {"team": team.code, "phone_number": "1234567890"}
+        failResponse = self.client.post(
+            self.url+"/initializeDevice/",
+            wrongDeviceData, format='json'
+        )
+        failResponse.render()
+        self.assertEqual(failResponse.status_code, status.HTTP_400_BAD_REQUEST)
 
+        updatedMemberQS = Member.objects.filter(
+            team=team,
+            phone_number=member['phone_number']
+        )
+        updatedMemeber = updatedMemberQS[0]
+        self._testActivateMemberDevice(token, team.code,
+                                       updatedMemeber.phone_number,
+                                       updatedMemeber.ver_code)
 
+    def _testActivateMemberDevice(self, token, teamCode, phoneNumber, verCode):
+        self.client.credentials(HTTP_AUTHORIZATION=' JWT '+token)
+        data = {"phone_number": phoneNumber,
+                "team": teamCode,
+                "ver_code": verCode,
+                "udid": "111111111"
+                }
+        putUrl = self.url+'/activateDevice/'
+        response = self.client.post(putUrl, data, format='json')
+        response.render()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        activeMemberQS = Member.objects.filter(team__code=teamCode, 
+            phone_number=phoneNumber
+        )
+        activeMember = activeMemberQS[0]
+        self.assertTrue(activeMember.active)
 
-    def testRegisterMemberDevice(self):
-        pass
 
     def testTeamMemberGetFirebaseToken(self):
         pass

@@ -37,4 +37,5 @@ urlpatterns = [
         tng_views.initializeDevice,
         name="initializeDevice"
         ),
+    url(r'activateDevice', tng_views.activateDevice, name="activateDevice")
 ]

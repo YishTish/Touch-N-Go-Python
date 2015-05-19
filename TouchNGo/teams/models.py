@@ -1,4 +1,4 @@
-import binascii, os
+import binascii, os, random
 from datetime import datetime
 from django.db import models
 from django.db.models.signals import post_save
@@ -89,30 +89,36 @@ class Administrator(models.Model):
 
 class MemberManager(models.Manager):
 
-    def create_member(self, memberData):
-        member = self.create(
-            team=memberData['team'],
-            name=memberData['name'],
-            phone_number=memberData['phone_number'],
-            udid=memberData['udid'],
-            active=False
-        )
-        return member
+    def create_member(self, team, name, phone_number,
+                      udid=None, active=False, ver_code=None):
+        if(ver_code is None):
+            ver_code = int((random.random()*10000))
+        if(udid is None):
+            udid = ""
+        member = Member(team=team, name=name, phone_number=phone_number, udid=udid, active=active)
         member.save()
+        return member
 
-    def create(self, memberData):
-        print("create")
+    # def create(self, memberData):
+    #     print("create")
 
 class Member(common_data):
     team = models.ForeignKey(Team, related_name='members')
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=20)
     udid = models.CharField(max_length=40)
+    ver_code = models.IntegerField(default=int(random.random()*10000))
 
     class Meta:
         unique_together = ("team", "phone_number")
 
-    #objects = MemberManager()
+    def assignVerCode(self):
+        code = int((random.random()*10000))
+        self.ver_code = code
+        self.save()
+        return code
+
+    objects = MemberManager()
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
